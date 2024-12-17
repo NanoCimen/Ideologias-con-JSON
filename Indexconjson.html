@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clasificación de periódicos de España</title>
+    <link rel="stylesheet" href="styles2.css">
+</head>
+<body>
+    <h1>Clasificación ideológica de periódicos de España</h1>
+    <div id="contenido-periodico">
+        <h2 id="titulo-periodico"></h2>
+        <img id="imagen-periodico" alt="Imagen del periódico" style="max-width: 100%; display: block;">
+        <p id="contenido-texto"></p>
+    </div>
+    <button onclick="respuestaUsuario('Izquierda')">Izquierda</button>
+    <button onclick="respuestaUsuario('Derecha')">Derecha</button>
+    <div id="comentario"></div>
+    <div id="mensaje-final"></div>
+
+    <script>
+        let periodicos = [];
+        let currentIndex = 0;
+
+        // Fetch JSON data
+        fetch('periodicos.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch JSON data.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                periodicos = data;
+                mostrarPeriodico(); // Start with the first article
+            })
+            .catch(error => {
+                console.error('Error loading JSON:', error);
+            });
+
+        function mostrarPeriodico() {
+            if (currentIndex >= periodicos.length) return;
+
+            const periodico = periodicos[currentIndex];
+            document.getElementById("titulo-periodico").textContent = periodico.title;
+            document.getElementById("imagen-periodico").src = periodico.image;
+            document.getElementById("imagen-periodico").alt = `Imagen de ${periodico.title}`;
+            document.getElementById("contenido-texto").textContent = periodico.content;
+        }
+
+        function respuestaUsuario(opcion) {
+            const periodico = periodicos[currentIndex];
+            const comentarioDiv = document.getElementById("comentario");
+
+            if (opcion === periodico.classification) {
+                comentarioDiv.innerHTML = `
+                    ✅ ¡Correcto!
+                    <br>
+                    <img src="https://media1.tenor.com/m/MRM58hVWgn4AAAAd/cristiano-cristiano-ronaldo.gif" alt="Cristiano SIU" style="max-width: 400px;">
+                `;
+                comentarioDiv.style.color = "green";
+            } else {
+                comentarioDiv.innerHTML = `
+                    ❌ ¡Incorrecto!
+                    <br>
+                    <img src="https://media.tenor.com/9_R-1X9M2tcAAAAM/hyutism-soccer-crying.gif" alt="Cristiano Sad" style="max-width: 800px;">
+                `;
+                comentarioDiv.style.color = "red";
+            }
+
+            comentarioDiv.style.display = "block";
+
+            setTimeout(() => {
+                comentarioDiv.style.display = "none";
+                currentIndex++;
+                if (currentIndex < periodicos.length) {
+                    mostrarPeriodico();
+                } else {
+                    const mensajeFinal = document.getElementById("mensaje-final");
+                    mensajeFinal.textContent = "¡Has clasificado todos los artículos!";
+                    mensajeFinal.style.display = "block";
+
+                    const restartButton = document.createElement('button');
+                    restartButton.textContent = 'Reiniciar';
+                    restartButton.onclick = () => location.reload();
+                    restartButton.style.marginTop = "20px";
+                    mensajeFinal.appendChild(restartButton);
+                    
+                    document.querySelectorAll("button").forEach(btn => btn.style.display = "none");
+                }
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
