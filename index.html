@@ -12,7 +12,7 @@
         Cargando títulos...
     </div>
     <div id="contenido-periodico">
-        <div id="progreso">Artículo <span id="articulo-actual">1</span> de <span id="total-articulos">20</span></div>
+        <div id="progreso">Artículo <span id="articulo-actual">1</span> de 10</div>
         <h2 id="titulo-periodico"></h2>
     </div>
     <div id="botones">
@@ -25,6 +25,7 @@
     <script>
         let periodicos = [];
         let currentIndex = 0;
+        const TOTAL_QUESTIONS = 10;
 
         document.getElementById('loading').style.display = 'block';
         fetch('periodicos.json')
@@ -35,8 +36,10 @@
                 return response.json();
             })
             .then(data => {
-                periodicos = data.sort(() => Math.random() - 0.5);
-                document.getElementById('total-articulos').textContent = periodicos.length;
+                // Shuffle all articles and take only 10
+                periodicos = data
+                    .sort(() => Math.random() - 0.5)
+                    .slice(0, TOTAL_QUESTIONS);
                 mostrarPeriodico();
             })
             .catch(error => {
@@ -48,7 +51,7 @@
             });
 
         function mostrarPeriodico() {
-            if (currentIndex >= periodicos.length) return;
+            if (currentIndex >= TOTAL_QUESTIONS) return;
 
             const periodico = periodicos[currentIndex];
             document.getElementById("titulo-periodico").textContent = periodico.title;
@@ -83,7 +86,7 @@
             setTimeout(() => {
                 comentarioDiv.style.display = "none";
                 currentIndex++;
-                if (currentIndex < periodicos.length) {
+                if (currentIndex < TOTAL_QUESTIONS) {
                     mostrarPeriodico();
                     buttons.forEach(btn => btn.disabled = false);
                 } else {
@@ -103,7 +106,7 @@
                         btn.style.display = "none";
                     });
                 }
-            }, 4000);
+            }, 3000);
         }
     </script>
 </body>
