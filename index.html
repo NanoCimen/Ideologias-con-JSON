@@ -9,14 +9,16 @@
 <body>
     <h1>Clasificación ideológica de periódicos de España</h1>
     <div id="loading" style="display: none; text-align: center; padding: 20px;">
-        Cargando periódicos...
+        Cargando títulos...
     </div>
     <div id="contenido-periodico">
-        <img id="imagen-periodico" alt="Imagen del periódico" style="max-width: 800px; display: block; margin: 20px auto;">
-        <p id="contenido-texto"></p>
+        <div id="progreso">Artículo <span id="articulo-actual">1</span> de <span id="total-articulos">20</span></div>
+        <h2 id="titulo-periodico"></h2>
     </div>
-    <button onclick="respuestaUsuario('Izquierda')">Izquierda</button>
-    <button onclick="respuestaUsuario('Derecha')">Derecha</button>
+    <div id="botones">
+        <button onclick="respuestaUsuario('Izquierda')" class="btn-izquierda">Izquierda</button>
+        <button onclick="respuestaUsuario('Derecha')" class="btn-derecha">Derecha</button>
+    </div>
     <div id="comentario"></div>
     <div id="mensaje-final"></div>
 
@@ -34,11 +36,12 @@
             })
             .then(data => {
                 periodicos = data.sort(() => Math.random() - 0.5);
+                document.getElementById('total-articulos').textContent = periodicos.length;
                 mostrarPeriodico();
             })
             .catch(error => {
                 console.error('Error loading JSON:', error);
-                document.body.innerHTML = "<h2>Error loading articles</h2>";
+                document.body.innerHTML = "<h2>Error cargando los artículos</h2>";
             })
             .finally(() => {
                 document.getElementById('loading').style.display = 'none';
@@ -48,8 +51,8 @@
             if (currentIndex >= periodicos.length) return;
 
             const periodico = periodicos[currentIndex];
-            document.getElementById("imagen-periodico").src = periodico.image;
-            document.getElementById("contenido-texto").textContent = periodico.content;
+            document.getElementById("titulo-periodico").textContent = periodico.title;
+            document.getElementById("articulo-actual").textContent = currentIndex + 1;
         }
 
         function respuestaUsuario(opcion) {
@@ -61,20 +64,18 @@
 
             if (opcion === periodico.classification) {
                 comentarioDiv.innerHTML = `
-                    <div style="font-size: 24px; margin: 20px;">
+                    <div class="feedback correcto">
                         ✅ ¡Correcto!
                         <br>
-                        SIUUU, el articulo es sobre ${periodico.title}
+                        Este artículo es de ${periodico.source}
                     </div>`;
-                comentarioDiv.style.color = "green";
             } else {
                 comentarioDiv.innerHTML = `
-                    <div style="font-size: 24px; margin: 20px;">
+                    <div class="feedback incorrecto">
                         ❌ ¡Incorrecto!
                         <br>
-                        NOO, el articulo es sobre ${periodico.title}
+                        Este artículo es de ${periodico.source}
                     </div>`;
-                comentarioDiv.style.color = "red";
             }
 
             comentarioDiv.style.display = "block";
@@ -98,7 +99,7 @@
                         mensajeFinal.appendChild(restartButton);
                     }
 
-                    document.querySelectorAll("button:not(#mensaje-final button)").forEach(btn => {
+                    document.querySelectorAll("#botones button").forEach(btn => {
                         btn.style.display = "none";
                     });
                 }
